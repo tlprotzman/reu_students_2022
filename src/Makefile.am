@@ -21,7 +21,8 @@ libjet_tree_builder_la_SOURCES = \
 
 libjet_tree_builder_la_LIBADD = \
   -lphool \
-  -lSubsysReco
+  -lSubsysReco \
+  -lfun4all
 
 BUILT_SOURCES = testexternals.cc
 

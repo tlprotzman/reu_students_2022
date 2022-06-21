@@ -1,69 +1,11 @@
-//____________________________________________________________________________..
-//
-// This is a template for a Fun4All SubsysReco module with all methods from the
-// $OFFLINE_MAIN/include/fun4all/SubsysReco.h baseclass
-// You do not have to implement all of them, you can just remove unused methods
-// here and in jet_tree_builder.h.
-//
-// jet_tree_builder(const std::string &name = "jet_tree_builder")
-// everything is keyed to jet_tree_builder, duplicate names do work but it makes
-// e.g. finding culprits in logs difficult or getting a pointer to the module
-// from the command line
-//
-// jet_tree_builder::~jet_tree_builder()
-// this is called when the Fun4AllServer is deleted at the end of running. Be
-// mindful what you delete - you do loose ownership of object you put on the node tree
-//
-// int jet_tree_builder::Init(PHCompositeNode *topNode)
-// This method is called when the module is registered with the Fun4AllServer. You
-// can create historgrams here or put objects on the node tree but be aware that
-// modules which haven't been registered yet did not put antyhing on the node tree
-//
-// int jet_tree_builder::InitRun(PHCompositeNode *topNode)
-// This method is called when the first event is read (or generated). At
-// this point the run number is known (which is mainly interesting for raw data
-// processing). Also all objects are on the node tree in case your module's action
-// depends on what else is around. Last chance to put nodes under the DST Node
-// We mix events during readback if branches are added after the first event
-//
-// int jet_tree_builder::process_event(PHCompositeNode *topNode)
-// called for every event. Return codes trigger actions, you find them in
-// $OFFLINE_MAIN/include/fun4all/Fun4AllReturnCodes.h
-//   everything is good:
-//     return Fun4AllReturnCodes::EVENT_OK
-//   abort event reconstruction, clear everything and process next event:
-//     return Fun4AllReturnCodes::ABORT_EVENT; 
-//   proceed but do not save this event in output (needs output manager setting):
-//     return Fun4AllReturnCodes::DISCARD_EVENT; 
-//   abort processing:
-//     return Fun4AllReturnCodes::ABORT_RUN
-// all other integers will lead to an error and abort of processing
-//
-// int jet_tree_builder::ResetEvent(PHCompositeNode *topNode)
-// If you have internal data structures (arrays, stl containers) which needs clearing
-// after each event, this is the place to do that. The nodes under the DST node are cleared
-// by the framework
-//
-// int jet_tree_builder::EndRun(const int runnumber)
-// This method is called at the end of a run when an event from a new run is
-// encountered. Useful when analyzing multiple runs (raw data). Also called at
-// the end of processing (before the End() method)
-//
-// int jet_tree_builder::End(PHCompositeNode *topNode)
-// This is called at the end of processing. It needs to be called by the macro
-// by Fun4AllServer::End(), so do not forget this in your macro
-//
-// int jet_tree_builder::Reset(PHCompositeNode *topNode)
-// not really used - it is called before the dtor is called
-//
-// void jet_tree_builder::Print(const std::string &what) const
-// Called from the command line - useful to print information when you need it
-//
-//____________________________________________________________________________..
 
 #include "jet_tree_builder.h"
 
+#include <TTree.h>
+
 #include <fun4all/Fun4AllReturnCodes.h>
+#include <fun4all/Fun4AllHistoManager.h>
+#include <fun4all/Fun4AllServer.h>
 
 #include <phool/PHCompositeNode.h>
 
@@ -71,19 +13,23 @@
 jet_tree_builder::jet_tree_builder(const std::string &name):
  SubsysReco(name)
 {
-  std::cout << "jet_tree_builder::jet_tree_builder(const std::string &name) Calling ctor" << std::endl;
+  return;
 }
 
 //____________________________________________________________________________..
 jet_tree_builder::~jet_tree_builder()
 {
-  std::cout << "jet_tree_builder::~jet_tree_builder() Calling dtor" << std::endl;
+  return;
 }
 
 //____________________________________________________________________________..
 int jet_tree_builder::Init(PHCompositeNode *topNode)
 {
-  std::cout << "jet_tree_builder::Init(PHCompositeNode *topNode) Initializing" << std::endl;
+  Fun4AllServer *server = Fun4AllServer::instance();
+  this->hist_manager = new Fun4AllHistoManager("hist_manager");
+  server->registerHistoManager(this->hist_manager);
+  this->setup_tree();
+  hist_manager->registerHisto(this->jet_data);
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
@@ -118,14 +64,30 @@ int jet_tree_builder::EndRun(const int runnumber)
 //____________________________________________________________________________..
 int jet_tree_builder::End(PHCompositeNode *topNode)
 {
-  std::cout << "jet_tree_builder::End(PHCompositeNode *topNode) This is the End..." << std::endl;
+  this->hist_manager->dumpHistos("out.root");
+  delete hist_manager;
+  delete jet_data;
+  
+  free(this->eta);
+  free(this->phi);
+  free(this->pt);
+  free(this->constituents);
+  free(this->z);
+
+  free(this->g_eta);
+  free(this->g_phi);
+  free(this->g_pt);
+  free(this->g_constituents);
+  free(this->g_z);
+
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
 //____________________________________________________________________________..
 int jet_tree_builder::Reset(PHCompositeNode *topNode)
 {
- std::cout << "jet_tree_builder::Reset(PHCompositeNode *topNode) being Reset" << std::endl;
+  this->num_jets = 0;
+  this->g_num_jets = 0;
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
@@ -133,4 +95,38 @@ int jet_tree_builder::Reset(PHCompositeNode *topNode)
 void jet_tree_builder::Print(const std::string &what) const
 {
   std::cout << "jet_tree_builder::Print(const std::string &what) const Printing info for " << what << std::endl;
+}
+
+void jet_tree_builder::setup_tree() {
+  jet_data = new TTree("jet_data", "Jet Data");
+  jet_data->Branch("MAX_JETS", &this->MAX_JETS);
+  jet_data->Branch("jet_R", &this->jet_R);
+  jet_data->Branch("num_jets", &this->num_jets);
+  jet_data->Branch("g_num_jets", &this->g_num_jets);
+
+  this->eta = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->phi = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->pt = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->constituents = (uint*) malloc(this->MAX_JETS * sizeof(uint));
+  this->z = (double*) malloc(this->MAX_JETS * sizeof(double));
+  
+  this->g_eta = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->g_phi = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->g_pt = (double*) malloc(this->MAX_JETS * sizeof(double));
+  this->g_constituents = (uint*) malloc(this->MAX_JETS * sizeof(uint));
+  this->g_z = (double*) malloc(this->MAX_JETS * sizeof(double));
+
+  jet_data->Branch("eta", this->eta, "eta[num_jets]/D");
+  jet_data->Branch("phi", this->phi, "phi[num_jets]/D");
+  jet_data->Branch("pt", this->pt, "pt[num_jets]/D");
+  jet_data->Branch("constituents", this->constituents, "constituents[num_jets]/i");
+  jet_data->Branch("z", this->z, "z[num_jets]/D");
+
+  jet_data->Branch("g_eta", this->g_eta, "g_eta[g_num_jets]/D");
+  jet_data->Branch("g_phi", this->g_phi, "g_phi[g_num_jets]/D");
+  jet_data->Branch("g_pt", this->g_pt, "g_pt[g_num_jets]/D");
+  jet_data->Branch("g_constituents", this->g_constituents, "g_constituents[g_num_jets]/i");
+  jet_data->Branch("g_z", this->g_z, "g_z[g_num_jets]/D");
+
+  return;
 }

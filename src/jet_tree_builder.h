@@ -3,9 +3,13 @@
 #ifndef JET_TREE_BUILDER_H
 #define JET_TREE_BUILDER_H
 
+#include <TTree.h>
+
 #include <fun4all/SubsysReco.h>
+#include <fun4all/Fun4AllHistoManager.h>
 
 #include <string>
+#include <vector>
 
 class PHCompositeNode;
 
@@ -51,6 +55,23 @@ class jet_tree_builder : public SubsysReco
   void Print(const std::string &what = "ALL") const override;
 
  private:
+    Fun4AllHistoManager *hist_manager;
+    
+    TTree *jet_data;
+    double jet_R;
+
+    int MAX_JETS;
+    int num_jets;
+    int g_num_jets;
+
+    double *eta, *phi, *pt, *z;
+    uint *constituents;
+    double *g_eta, *g_phi, *g_pt, *g_z;
+    uint *g_constituents;
+
+    void setup_tree();
+
+    
 };
 
 #endif // JET_TREE_BUILDER_H
