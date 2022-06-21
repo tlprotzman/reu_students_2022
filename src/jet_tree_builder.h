@@ -60,14 +60,12 @@ class jet_tree_builder : public SubsysReco
     TTree *jet_data;
     double jet_R;
 
-    int MAX_JETS = 25;
+    int MAX_JETS = 50;
     int num_jets;
     int g_num_jets;
 
-    double *eta, *phi, *pt, *z;
-    uint *constituents;
-    double *g_eta, *g_phi, *g_pt, *g_z;
-    uint *g_constituents;
+    double *eta, *phi, *pt;
+    double *g_eta, *g_phi, *g_pt;
 
     void setup_tree();
 

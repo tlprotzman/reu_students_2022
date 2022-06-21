@@ -63,8 +63,8 @@ void BuildJetTrees(int nEvents=0){
   se->registerSubsystem(calo_jets);
 
   // Register tree builder
-//  jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
-//  se->registerSubsystem(tree_builder);
+ jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
+ se->registerSubsystem(tree_builder);
 
 
   //run over the data
