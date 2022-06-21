@@ -60,7 +60,7 @@ class jet_tree_builder : public SubsysReco
     TTree *jet_data;
     double jet_R;
 
-    int MAX_JETS;
+    int MAX_JETS = 25;
     int num_jets;
     int g_num_jets;
 
