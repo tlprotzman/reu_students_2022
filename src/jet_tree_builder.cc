@@ -28,6 +28,7 @@ jet_tree_builder::~jet_tree_builder()
 //____________________________________________________________________________..
 int jet_tree_builder::Init(PHCompositeNode *topNode)
 {
+  std::cout << "I'm running!!" << std::endl;
   Fun4AllServer *server = Fun4AllServer::instance();
   this->hist_manager = new Fun4AllHistoManager("hist_manager");
   server->registerHistoManager(this->hist_manager);
@@ -45,21 +46,26 @@ int jet_tree_builder::InitRun(PHCompositeNode *topNode)
 //____________________________________________________________________________..
 int jet_tree_builder::process_event(PHCompositeNode *topNode)
 {
+  std::cout << "Processing event!" << std::endl;
   JetMap *truth_jets = findNode::getClass<JetMap>(topNode, "AntiKt_Truth_r04");
   JetMap *reco_jets  = findNode::getClass<JetMap>(topNode, "AntiKt_Tower_r04");
   if (!truth_jets) {
-    std::cerr << PHWHERE << " Cannot find AntiKt_Truth_r04" << std::endl;
+    std::cout << PHWHERE << " Cannot find AntiKt_Truth_r04" << std::endl;
     return Fun4AllReturnCodes::ABORTRUN;
   }
   if (!reco_jets) {
-    std::cerr << PHWHERE << " Cannot find AntiKt_Tower_r04" << std::endl;
+    std::cout << PHWHERE << " Cannot find AntiKt_Tower_r04" << std::endl;
     return Fun4AllReturnCodes::ABORTRUN;
   }
 
   for (JetMap::Iter itr = truth_jets->begin(); itr != truth_jets->end(); itr++) {
     if (g_num_jets >= MAX_JETS) {
       break;
-    }Jet *jet = itr->second;
+    }
+    Jet *jet = itr->second;
+    if (!jet) {
+      break;
+    }
     g_eta[g_num_jets] = jet->get_eta();
     g_phi[g_num_jets] = jet->get_phi();
     g_pt[g_num_jets] = jet->get_pt();
@@ -71,6 +77,9 @@ int jet_tree_builder::process_event(PHCompositeNode *topNode)
       break;
     }
     Jet *jet = itr->second;
+    if (false && !jet) {
+      break;
+    }
     eta[num_jets] = jet->get_eta();
     phi[num_jets] = jet->get_phi();
     pt[num_jets] = jet->get_pt();
@@ -99,6 +108,7 @@ int jet_tree_builder::EndRun(const int runnumber)
 //____________________________________________________________________________..
 int jet_tree_builder::End(PHCompositeNode *topNode)
 {
+  std::cout << "I'm ending!" << std::endl;
   this->hist_manager->dumpHistos("out.root");
   delete hist_manager;
   delete jet_data;
