@@ -11,7 +11,8 @@ AM_LDFLAGS = \
   -L$(OFFLINE_MAIN)/lib64
 
 pkginclude_HEADERS = \
-  jet_tree_builder.h
+  jet_tree_builder.h \
+  jet_data.h
 
 lib_LTLIBRARIES = \
   libjet_tree_builder.la

@@ -37,7 +37,7 @@ int jet_tree_builder::Init(PHCompositeNode *topNode)
   
   this->jet_tree = new TTree("jet_tree", "Jet Tree");
   this->jets = new std::vector<jet_data*>;
-  for (uint i = 2; i < 8; i++) {
+  for (uint i = 2; i <= 8; i++) {
     jets->push_back(new jet_data(i / 10.0, jet_tree));
   }
 
