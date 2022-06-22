@@ -17,7 +17,8 @@ lib_LTLIBRARIES = \
   libjet_tree_builder.la
 
 libjet_tree_builder_la_SOURCES = \
-  jet_tree_builder.cc
+  jet_tree_builder.cc \
+  jet_data.cc
 
 libjet_tree_builder_la_LIBADD = \
   -lphool \

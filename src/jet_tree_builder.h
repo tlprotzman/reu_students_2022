@@ -8,8 +8,12 @@
 #include <fun4all/SubsysReco.h>
 #include <fun4all/Fun4AllHistoManager.h>
 
+#include <g4jets/JetMap.h>
+
 #include <string>
 #include <vector>
+
+#include "jet_data.h"
 
 class PHCompositeNode;
 
@@ -57,18 +61,9 @@ class jet_tree_builder : public SubsysReco
  private:
     Fun4AllHistoManager *hist_manager;
     
-    TTree *jet_data;
-    double jet_R;
-
-    int MAX_JETS = 50;
-    int num_jets;
-    int g_num_jets;
-
-    double *eta, *phi, *pt;
-    double *g_eta, *g_phi, *g_pt;
-
-    void setup_tree();
-
+    TTree *jet_tree;
+    std::vector<jet_data*> *jets;
+    
     
 };
 

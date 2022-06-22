@@ -56,7 +56,13 @@ void BuildJetTrees(int nEvents=0){
   calo_jets->add_input(new TowerJetInput(Jet::CEMC_TOWER));
   calo_jets->add_input(new TowerJetInput(Jet::HCALIN_TOWER));
   calo_jets->add_input(new TowerJetInput(Jet::HCALOUT_TOWER));
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.2), "AntiKt_Tower_r02");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.3), "AntiKt_Tower_r03");
   calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.4), "AntiKt_Tower_r04");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.5), "AntiKt_Tower_r05");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.6), "AntiKt_Tower_r06");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.7), "AntiKt_Tower_r07");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.8), "AntiKt_Tower_r08");
 	calo_jets->set_algo_node("ANTIKT");
 	calo_jets->set_input_node("TOWER");
 	calo_jets->Verbosity(Input::VERBOSITY);
