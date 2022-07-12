@@ -11,8 +11,8 @@ class jet_data
         TTree *tree;
         std::string tag;
         float jet_r;
-        std::vector<double> *eta, *phi, *pt;
-        std::vector<double> *g_eta, *g_phi, *g_pt;
+        std::vector<double> *eta, *phi, *pt, *area, *rho;
+        std::vector<double> *g_eta, *g_phi, *g_pt, *g_area, *g_rho;
 
 
         jet_data(float _jet_r, TTree *_tree);

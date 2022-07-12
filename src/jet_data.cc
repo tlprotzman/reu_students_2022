@@ -21,18 +21,26 @@ jet_data::jet_data(float _jet_r, TTree *_tree) {
   this->eta = new std::vector<double>;
   this->phi = new std::vector<double>;
   this->pt = new std::vector<double>;
+  this->area = new std::vector<double>;
+  this->rho = new std::vector<double>;
   
   this->g_eta = new std::vector<double>;
   this->g_phi = new std::vector<double>;
   this->g_pt = new std::vector<double>;
+  this->g_area = new std::vector<double>;
+  this->g_rho = new std::vector<double>;
 
   tree->Branch(Form("%s_eta", this->tag.c_str()), this->eta);
   tree->Branch(Form("%s_phi", this->tag.c_str()), this->phi);
   tree->Branch(Form("%s_pt", this->tag.c_str()), this->pt);
+  tree->Branch(Form("%s_area", this->tag.c_str()), this->area);
+  tree->Branch(Form("%s_rho", this->tag.c_str()), this->rho);
 
   tree->Branch(Form("%s_g_eta", this->tag.c_str()), this->g_eta);
   tree->Branch(Form("%s_g_phi", this->tag.c_str()), this->g_phi);
   tree->Branch(Form("%s_g_pt", this->tag.c_str()), this->g_pt);
+  tree->Branch(Form("%s_g_area", this->tag.c_str()), this->g_area);
+  tree->Branch(Form("%s_g_rho", this->tag.c_str()), this->g_rho);
 
 }
 
