@@ -27,8 +27,9 @@
 #include "rho_map.h"
 
 
-rho_background::rho_background(const std::string &name): SubsysReco(name)
+rho_background::rho_background(const std::string &name, double reso): SubsysReco(name)
 {
+  this->resolution = reso;
   return;
 }
 
@@ -88,7 +89,7 @@ int rho_background::process_event(PHCompositeNode *topnode)
 
   std::cout << "Jet finding on " << tower_collection.size() << " jets" << std::endl;
   this->jet_background_estimator->set_particles(tower_collection);
-  (*(rho->rho))[4] = this->jet_background_estimator->rho();
+  (*(rho->rho))[(int)floor(this->resolution * 10)] = this->jet_background_estimator->rho();
   return Fun4AllReturnCodes::EVENT_OK;
 }
 

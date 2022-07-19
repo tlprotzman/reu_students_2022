@@ -148,8 +148,10 @@ void BuildJetTrees(int nEvents=0){
   std::cout << "Registering my module" << std::endl;
   
   // Register rho background subtractor
-  rho_background *rho_background_sys = new rho_background("rho_background");
-  se->registerSubsystem(rho_background_sys);
+  for (int i = 2; i <= 8; i++) {
+    rho_background *rho_background_sys = new rho_background(Form("rho_background_r0%i", i), i / 10.0);
+    se->registerSubsystem(rho_background_sys);
+  }
 
   // Register tree builder
   jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
