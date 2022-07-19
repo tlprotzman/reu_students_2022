@@ -10,7 +10,7 @@
 #include <G4_ParticleFlow.C>
 #include <G4_Production.C>
 #include <G4_TopoClusterReco.C>
-#include <G4_Tracking.C>
+// #include <G4_Tracking.C>
 #include <G4_User.C>
 #include <QA.C>
 
@@ -36,7 +36,7 @@
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libjet_tree_builder.so)
 R__LOAD_LIBRARY(libg4jets.so)
-R__LOAD_LIBRARY(libjetbackgroud.so)
+R__LOAD_LIBRARY(libjetbackground.so)
 
 void BuildJetTrees(int nEvents=0){
 
@@ -60,28 +60,24 @@ void BuildJetTrees(int nEvents=0){
 //  Global_FastSim();
 
   // Find calo jets
-  JetReco *calo_jets = new JetReco("calo_jets");
+  JetReco *calo_jets = new JetReco();
   calo_jets->add_input(new TowerJetInput(Jet::CEMC_TOWER));
   calo_jets->add_input(new TowerJetInput(Jet::HCALIN_TOWER));
   calo_jets->add_input(new TowerJetInput(Jet::HCALOUT_TOWER));
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.2), "AntiKt_Tower_r02");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.3), "AntiKt_Tower_r03");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.4), "AntiKt_Tower_r04");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.5), "AntiKt_Tower_r05");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.6), "AntiKt_Tower_r06");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.7), "AntiKt_Tower_r07");
-  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.8), "AntiKt_Tower_r08");
+  calo_jets->add_algo(new FastJetAlgo(Jet::ANTIKT, 0.2), "AntiKt_Tower_HIRecoSeedsRaw_r02");
 	calo_jets->set_algo_node("ANTIKT");
 	calo_jets->set_input_node("TOWER");
 	calo_jets->Verbosity(Input::VERBOSITY);
   se->registerSubsystem(calo_jets);
+
+  std::cout << "Calo stuff registered" << std::endl;
 
   // sPHENIX Background Subtraction Stuff
   RetowerCEMC *retower_cemc = new RetowerCEMC();
   retower_cemc->Verbosity(Input::VERBOSITY);
   se->registerSubsystem(retower_cemc);
 
-  bool do_flow = true;   // Maybe?? 
+  bool do_flow = false;   // Maybe?? 
 
   DetermineTowerBackground *tower_background = new DetermineTowerBackground();
   tower_background->SetBackgroundOutputName("TowerBackground_Sub1");
@@ -109,6 +105,8 @@ void BuildJetTrees(int nEvents=0){
   subtract_tower->Verbosity(Input::VERBOSITY);
   se->registerSubsystem(subtract_tower);
 
+  std::cout << "Registering everything but final jet finding" << std::endl;
+
   JetReco *subtracted_jets = new JetReco("subtracted_jets");
   subtracted_jets->add_input(new TowerJetInput(Jet::CEMC_TOWER_SUB1));
   subtracted_jets->add_input(new TowerJetInput(Jet::HCALIN_TOWER_SUB1));
@@ -129,17 +127,17 @@ void BuildJetTrees(int nEvents=0){
 
 
 
-
+  std::cout << "Registering my module" << std::endl;
   
 
   // Register tree builder
- jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
- se->registerSubsystem(tree_builder);
+  jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
+  se->registerSubsystem(tree_builder);
 
-
+  std::cout << "I'm about to run..." << std::endl;
   //run over the data
   se->run(nEvents);
-
+  std::cout << "I ran!" << std::endl;
   //complete
   se->End();
   std::cout << "All done" << std::endl;
