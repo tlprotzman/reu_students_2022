@@ -8,18 +8,21 @@ AM_CPPFLAGS = \
 AM_LDFLAGS = \
   -L$(libdir) \
   -L$(OFFLINE_MAIN)/lib \
-  -L$(OFFLINE_MAIN)/lib64
+  -L$(OFFLINE_MAIN)/lib64 \
+  `fastjet-config --libs`
 
 pkginclude_HEADERS = \
   jet_tree_builder.h \
-  jet_data.h
+  jet_data.h \
+  rho_background.h
 
 lib_LTLIBRARIES = \
   libjet_tree_builder.la
 
 libjet_tree_builder_la_SOURCES = \
   jet_tree_builder.cc \
-  jet_data.cc
+  jet_data.cc \
+  rho_background.cc
 
 libjet_tree_builder_la_LIBADD = \
   -lphool \
