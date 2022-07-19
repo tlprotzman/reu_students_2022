@@ -3,6 +3,7 @@
 #include <fun4all/Fun4AllReturnCodes.h>
 
 #include <phool/PHCompositeNode.h>
+#include <phool/PHIODataNode.h>
 #include <phool/getClass.h>
 
 // Not really sure which of these we need, lets just throw everything at it for now
@@ -23,6 +24,8 @@
 
 #include <vector>
 
+#include "rho_map.h"
+
 
 rho_background::rho_background(const std::string &name): SubsysReco(name)
 {
@@ -36,6 +39,21 @@ rho_background::~rho_background()
 
 int rho_background::Init(PHCompositeNode *topnode)
 {
+  // Looking for the DST node
+  PHCompositeNode *dstNode = findNode::getClass<PHCompositeNode>(topnode, "DST");
+  if (!dstNode)
+  {
+    std::cout << PHWHERE << "DST Node missing, doing nothing." << std::endl;
+    return Fun4AllReturnCodes::ABORTRUN;
+  }
+  RhoMap *rho = findNode::getClass<RhoMap>(topnode, "rho");
+  if (rho == nullptr) {
+    RhoMap *rho = new RhoMap;
+    PHIODataNode<RhoMap> *rho_node = new PHIODataNode<RhoMap>(rho, "rho", "rho_map");
+    dstNode->addNode(rho_node);
+  }
+  
+
   this->background_area_spec = fastjet::GhostedAreaSpec(this->ghost_maxrap);
   this->background_jet_area = fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, this->background_area_spec);
   this->background_subtraction_def = fastjet::JetDefinition(fastjet::kt_algorithm, this->resolution);
@@ -47,6 +65,12 @@ int rho_background::Init(PHCompositeNode *topnode)
 
 int rho_background::process_event(PHCompositeNode *topnode)
 {
+  RhoMap *rho = findNode::getClass<RhoMap>(topnode, "rho");
+  if (rho == nullptr) {
+    std::cerr << PHWHERE << " cannot find rho node" << std::endl;
+    return Fun4AllReturnCodes::ABORTEVENT;
+  }
+
   // Get calorimeter data
   RawTowerContainer *towersEM = findNode::getClass<RawTowerContainer>(topnode, "TOWER_CALIB_CEMC");
   RawTowerContainer *towersIH = findNode::getClass<RawTowerContainer>(topnode, "TOWER_CALIB_HCALIN");
@@ -64,6 +88,7 @@ int rho_background::process_event(PHCompositeNode *topnode)
 
   std::cout << "Jet finding on " << tower_collection.size() << " jets" << std::endl;
   this->jet_background_estimator->set_particles(tower_collection);
+  (*(rho->rho))[4] = this->jet_background_estimator->rho();
   return Fun4AllReturnCodes::EVENT_OK;
 }
 

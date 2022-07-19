@@ -3,6 +3,8 @@
 
 #include <fun4all/SubsysReco.h>
 
+#include <phool/PHIODataNode.h>
+
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/ClusterSequence.hh>
 #include <fastjet/ClusterSequenceArea.hh>
@@ -31,7 +33,7 @@ class rho_background : public SubsysReco
   void towers_to_pseudojets(RawTowerContainer *towers, RawTowerGeomContainer *geom, std::vector<fastjet::PseudoJet> &jets);
 
   const float ghost_maxrap = 1.1;
-  double resolution;
+  double resolution = 0.4;
   
   fastjet::GhostedAreaSpec background_area_spec;
   fastjet::AreaDefinition background_jet_area;

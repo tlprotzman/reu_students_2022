@@ -12,6 +12,8 @@
 #include <string>
 #include <vector>
 
+#include "rho_map.h"
+
 jet_data::jet_data(float _jet_r, TTree *_tree) {
   this->tree = _tree;
   this->jet_r = _jet_r;
@@ -64,6 +66,8 @@ int jet_data::fill_trees(PHCompositeNode *topNode) {
   JetMap *truth_jets = findNode::getClass<JetMap>(topNode, truth_node_name);
   JetMap *reco_jets  = findNode::getClass<JetMap>(topNode, tower_node_name);
   JetMap *subtracted_jets = findNode::getClass<JetMap>(topNode, subtracted_node_name);
+  RhoMap *rho_map = findNode::getClass<RhoMap>(topNode, "rho");
+
   if (!truth_jets) {
     std::cout << PHWHERE << " Cannot find " << truth_node_name << std::endl;
     return Fun4AllReturnCodes::ABORTEVENT;
@@ -76,15 +80,19 @@ int jet_data::fill_trees(PHCompositeNode *topNode) {
     std::cout << PHWHERE << " Cannot find " << subtracted_node_name << std::endl;
     return Fun4AllReturnCodes::ABORTEVENT;
   }
+  if (!rho_map) {
+    std::cout << PHWHERE << " Cannot find rho" << std::endl;
+    return Fun4AllReturnCodes::ABORTEVENT;
+  }
 
   for (JetMap::Iter itr = truth_jets->begin(); itr != truth_jets->end(); itr++) {
     Jet *jet = itr->second;
     if (!jet) {
       continue;
     }
-    g_eta->push_back(jet->get_eta());
-    g_phi->push_back(jet->get_phi());
-    g_pt->push_back(jet->get_pt());
+    this->g_eta->push_back(jet->get_eta());
+    this->g_phi->push_back(jet->get_phi());
+    this->g_pt->push_back(jet->get_pt());
   }
 
   for (JetMap::Iter itr = subtracted_jets->begin(); itr != subtracted_jets->end(); itr++) {
@@ -92,9 +100,9 @@ int jet_data::fill_trees(PHCompositeNode *topNode) {
     if (!jet) {
       continue;
     }
-    sphenix_eta->push_back(jet->get_eta());
-    sphenix_phi->push_back(jet->get_phi());
-    sphenix_pt->push_back(jet->get_pt());
+    this->sphenix_eta->push_back(jet->get_eta());
+    this->sphenix_phi->push_back(jet->get_phi());
+    this->sphenix_pt->push_back(jet->get_pt());
   }
 
   for (JetMap::Iter itr = reco_jets->begin(); itr != reco_jets->end(); itr++) {
@@ -102,9 +110,12 @@ int jet_data::fill_trees(PHCompositeNode *topNode) {
     if (!jet) {
       continue;
     }
-    eta->push_back(jet->get_eta());
-    phi->push_back(jet->get_phi());
-    pt->push_back(jet->get_pt());
+    this->eta->push_back(jet->get_eta());
+    this->phi->push_back(jet->get_phi());
+    this->pt->push_back(jet->get_pt());
+    double rho = (*rho_map->rho)[4];
+    std::cout << "rho is " << rho << std::endl;
+    this->rho->push_back(rho);
   }
   return Fun4AllReturnCodes::EVENT_OK;
 }

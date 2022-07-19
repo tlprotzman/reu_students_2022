@@ -14,7 +14,8 @@ AM_LDFLAGS = \
 pkginclude_HEADERS = \
   jet_tree_builder.h \
   jet_data.h \
-  rho_background.h
+  rho_background.h \
+  rho_map.h
 
 lib_LTLIBRARIES = \
   libjet_tree_builder.la
@@ -22,7 +23,8 @@ lib_LTLIBRARIES = \
 libjet_tree_builder_la_SOURCES = \
   jet_tree_builder.cc \
   jet_data.cc \
-  rho_background.cc
+  rho_background.cc \
+  rho_map.cc
 
 libjet_tree_builder_la_LIBADD = \
   -lphool \
