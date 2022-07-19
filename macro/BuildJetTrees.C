@@ -32,6 +32,7 @@
 #include <jetbackground/SubtractTowersCS.h>
 
 #include "jet_tree_builder.h"
+#include "rho_background.h"
 
 R__LOAD_LIBRARY(libfun4all.so)
 R__LOAD_LIBRARY(libjet_tree_builder.so)
@@ -129,6 +130,9 @@ void BuildJetTrees(int nEvents=0){
 
   std::cout << "Registering my module" << std::endl;
   
+  // Register rho background subtractor
+  rho_background *rho_background_sys = new rho_background("rho_background");
+  se->registerSubsystem(rho_background_sys);
 
   // Register tree builder
   jet_tree_builder *tree_builder = new jet_tree_builder("jet_tree_builder");
