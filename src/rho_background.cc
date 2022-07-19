@@ -40,11 +40,11 @@ rho_background::~rho_background()
 int rho_background::Init(PHCompositeNode *topnode)
 {
   // Looking for the DST node
-  PHCompositeNode *dstNode = findNode::getClass<PHCompositeNode>(topnode, "DST");
+  PHNodeIterator iter(topnode); 
+  PHCompositeNode *dstNode = static_cast<PHCompositeNode *>(iter.findFirst("PHCompositeNode", "DST"));
   if (!dstNode)
   {
     std::cout << PHWHERE << "DST Node missing, doing nothing." << std::endl;
-    return Fun4AllReturnCodes::ABORTRUN;
   }
   RhoMap *rho = findNode::getClass<RhoMap>(topnode, "rho");
   if (rho == nullptr) {

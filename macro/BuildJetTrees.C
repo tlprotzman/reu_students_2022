@@ -43,7 +43,7 @@ void BuildJetTrees(int nEvents=0){
 
   Fun4AllServer *se = Fun4AllServer::instance();
 
-  Input::VERBOSITY = 0;
+  Input::VERBOSITY = 100;
 
   //load the data
   Fun4AllInputManager *truth_jet_manager = new Fun4AllDstInputManager("DST_TRUTH_JET");

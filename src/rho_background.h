@@ -24,7 +24,7 @@ class rho_background : public SubsysReco
 {
   public: 
   rho_background(const std::string &name = "rho_background");
-  ~rho_background();
+  ~rho_background() override;
 
   int Init(PHCompositeNode *topnode) override;
   int process_event(PHCompositeNode *topnode) override;
