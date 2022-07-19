@@ -12,6 +12,7 @@ class jet_data
         std::string tag;
         float jet_r;
         std::vector<double> *eta, *phi, *pt, *area, *rho;
+        std::vector<double> *sphenix_eta, *sphenix_phi, *sphenix_pt, *sphenix_area, *sphenix_rho;
         std::vector<double> *g_eta, *g_phi, *g_pt, *g_area, *g_rho;
 
 
