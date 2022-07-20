@@ -28,6 +28,7 @@ class rho_background : public SubsysReco
 
   int Init(PHCompositeNode *topnode) override;
   int process_event(PHCompositeNode *topnode) override;
+  int ResetEvent(PHCompositeNode *topenode) override;
 
   private:
   void towers_to_pseudojets(RawTowerContainer *towers, RawTowerGeomContainer *geom, std::vector<fastjet::PseudoJet> &jets);
@@ -35,11 +36,15 @@ class rho_background : public SubsysReco
   const float ghost_maxrap = 1.1;
   double resolution;
   
+  fastjet::GhostedAreaSpec area_spec;
   fastjet::GhostedAreaSpec background_area_spec;
+  fastjet::AreaDefinition jet_area;
   fastjet::AreaDefinition background_jet_area;
+  fastjet::JetDefinition jet_def;
   fastjet::JetDefinition background_subtraction_def;
   fastjet::Selector jet_selector;
   fastjet::JetMedianBackgroundEstimator *jet_background_estimator;
+  fastjet::ClusterSequenceArea *cluster_sequence;
 };
 
 #endif // RHO_BACKGROUND_H

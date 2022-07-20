@@ -7,6 +7,8 @@
 
 #include <fun4all/Fun4AllReturnCodes.h>
 
+#include <fastjet/PseudoJet.hh>
+
 #include <TTree.h>
 
 #include <string>
@@ -105,15 +107,14 @@ int jet_data::fill_trees(PHCompositeNode *topNode) {
     this->sphenix_pt->push_back(jet->get_pt());
   }
 
-  for (JetMap::Iter itr = reco_jets->begin(); itr != reco_jets->end(); itr++) {
-    Jet *jet = itr->second;
-    if (!jet) {
-      continue;
-    }
-    this->eta->push_back(jet->get_eta());
-    this->phi->push_back(jet->get_phi());
-    this->pt->push_back(jet->get_pt());
-    double rho = (*rho_map->rho)[4];
+  for (fastjet::PseudoJet jet : (*(*(rho_map->jets))[(int)floor(this->jet_r * 10)]))  {
+    
+  
+    this->eta->push_back(jet.eta());
+    this->phi->push_back(jet.phi());
+    this->pt->push_back(jet.pt());
+    this->area->push_back(jet.area());
+    double rho = (*rho_map->rho)[(int)floor(this->jet_r * 10)];
     std::cout << "rho is " << rho << std::endl;
     this->rho->push_back(rho);
   }

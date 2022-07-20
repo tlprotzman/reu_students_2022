@@ -54,13 +54,16 @@ int rho_background::Init(PHCompositeNode *topnode)
     dstNode->addNode(rho_node);
   }
   
-
+  this->area_spec = fastjet::GhostedAreaSpec(this->ghost_maxrap);
   this->background_area_spec = fastjet::GhostedAreaSpec(this->ghost_maxrap);
+  this->background_jet_area = fastjet::AreaDefinition(fastjet::active_area, this->background_area_spec);
   this->background_jet_area = fastjet::AreaDefinition(fastjet::active_area_explicit_ghosts, this->background_area_spec);
+  this->jet_def = fastjet::JetDefinition(fastjet::antikt_algorithm, this->resolution);
   this->background_subtraction_def = fastjet::JetDefinition(fastjet::kt_algorithm, this->resolution);
   
   this->jet_selector = fastjet::SelectorAbsRapMax(1.1) * (!fastjet::SelectorNHardest(2)); // wtf?
   this->jet_background_estimator = new fastjet::JetMedianBackgroundEstimator(this->jet_selector, this->background_subtraction_def, this->background_jet_area);
+  this->cluster_sequence = nullptr;
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
@@ -88,8 +91,31 @@ int rho_background::process_event(PHCompositeNode *topnode)
   this->towers_to_pseudojets(towersOH, geomOH, tower_collection);
 
   std::cout << "Jet finding on " << tower_collection.size() << " jets" << std::endl;
+
+  if (this->cluster_sequence) {
+    delete this->cluster_sequence;
+  }
+  this->cluster_sequence = new fastjet::ClusterSequenceArea(tower_collection, this->jet_def, this->jet_area);
+  std::vector<fastjet::PseudoJet> found_jets = fastjet::sorted_by_pt(cluster_sequence->inclusive_jets());
+  for (fastjet::PseudoJet j : found_jets) {
+    if (j.pt() < 2) {
+      break;
+    }
+    (*(rho->jets))[(int)floor(this->resolution * 10)]->push_back(j); // Yes, I know this is gross.  Sorry.
+  }
+
   this->jet_background_estimator->set_particles(tower_collection);
   (*(rho->rho))[(int)floor(this->resolution * 10)] = this->jet_background_estimator->rho();
+  return Fun4AllReturnCodes::EVENT_OK;
+}
+
+int rho_background::ResetEvent(PHCompositeNode *topnode) {
+  RhoMap *rho = findNode::getClass<RhoMap>(topnode, "rho");
+  if (rho == nullptr) {
+    std::cerr << PHWHERE << " cannot find rho node" << std::endl;
+    return Fun4AllReturnCodes::ABORTEVENT;
+  }
+  rho->clear_jets();
   return Fun4AllReturnCodes::EVENT_OK;
 }
 
