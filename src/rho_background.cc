@@ -61,7 +61,7 @@ int rho_background::Init(PHCompositeNode *topnode)
   this->jet_def = fastjet::JetDefinition(fastjet::antikt_algorithm, this->resolution);
   this->background_subtraction_def = fastjet::JetDefinition(fastjet::kt_algorithm, this->resolution);
   
-  this->jet_selector = fastjet::SelectorAbsRapMax(1.1) * (!fastjet::SelectorNHardest(2)); // wtf?
+  this->jet_selector = fastjet::SelectorAbsRapMax(1.1) * (!fastjet::SelectorNHardest(2));
   this->jet_background_estimator = new fastjet::JetMedianBackgroundEstimator(this->jet_selector, this->background_subtraction_def, this->background_jet_area);
   this->cluster_sequence = nullptr;
   return Fun4AllReturnCodes::EVENT_OK;
